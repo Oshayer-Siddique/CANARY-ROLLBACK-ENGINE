@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-stable
+  namespace: canary-mvp
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: canary-demo-application
+    app.kubernetes.io/component: stable
+    app.kubernetes.io/version: v1
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-canary
+  namespace: canary-mvp
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: canary-demo-application
+    app.kubernetes.io/component: canary
+    app.kubernetes.io/version: v2
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
