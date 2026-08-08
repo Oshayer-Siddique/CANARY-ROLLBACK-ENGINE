@@ -22,6 +22,8 @@ spec:
         app.kubernetes.io/component: canary
         app.kubernetes.io/version: v2
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: k3d-canary-mvp-server-0
       terminationGracePeriodSeconds: 15
       securityContext:
         seccompProfile:
