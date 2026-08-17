@@ -1,6 +1,10 @@
 #  Automated Canary Delivery & Self-Healing Rollback Engine
 
+See the [phase-by-phase issue history](docs/troubleshooting/README.md) for recorded errors, causes, corrections, verification, and prevention.
+
 > An autonomous Kubernetes progressive delivery platform that safely releases software changes, analyzes real-time production health, and automatically rolls back unhealthy deployments.
+
+Current MVP implementation: Phases 1–6 are complete. See the [canary traffic guide](docs/CANARY_TRAFFIC.md) for routing controls and the [automated recovery guide](docs/AUTOMATED_RECOVERY.md) for the deployed controller, policy, and verified recovery exercise. Phase 7 integrated end-to-end verification remains.
 
 ---
 
