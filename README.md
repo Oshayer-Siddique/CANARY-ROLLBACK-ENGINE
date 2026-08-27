@@ -2,9 +2,24 @@
 
 See the [phase-by-phase issue history](docs/troubleshooting/README.md) for recorded errors, causes, corrections, verification, and prevention.
 
-> An autonomous Kubernetes progressive delivery platform that safely releases software changes, analyzes real-time production health, and automatically rolls back unhealthy deployments.
+> A local Kubernetes canary delivery MVP that observes application health and automatically restores stable traffic when a canary fails.
 
-Current MVP implementation: Phases 1–6 are complete. See the [canary traffic guide](docs/CANARY_TRAFFIC.md) for routing controls and the [automated recovery guide](docs/AUTOMATED_RECOVERY.md) for the deployed controller, policy, and verified recovery exercise. Phase 7 integrated end-to-end verification remains.
+Current implementation: Phases 1–6 provide the application, containers, Kubernetes routing, monitoring, canary controls, and automated recovery. Phase 7 verifies the integrated workflow; see the [end-to-end verification guide](docs/END_TO_END_VERIFICATION.md) for acceptance results and scope.
+
+The MVP uses an operator-controlled traffic split and a Python recovery controller. A healthy release remains at its current split until the operator increases traffic; an unhealthy canary automatically returns to 100% stable traffic. Argo Rollouts, automatic promotion, CI/CD integration, and Grafana belong to the future roadmap below.
+
+## Run the local MVP
+
+Follow these guides in order:
+
+1. [Application](docs/APPLICATION.md) and [Docker images](docs/DOCKER.md).
+2. [Local Kubernetes and Gateway](docs/KUBERNETES.md).
+3. [Prometheus monitoring](docs/MONITORING.md).
+4. [Canary traffic controls](docs/CANARY_TRAFFIC.md).
+5. [Recovery controller](docs/AUTOMATED_RECOVERY.md).
+6. [Integrated acceptance](docs/END_TO_END_VERIFICATION.md): run `python3 -u scripts/verify_mvp.py` after the earlier setup is ready.
+
+The acceptance suite injects local faults and restores healthy v2 with 100/0 routing. It saves per-run reports under `reports/`. Read the guide's preconditions before running it. See [architecture](ARCHITECTURE.md) for the implemented components and future design.
 
 ---
 
@@ -280,7 +295,7 @@ They need:
 #  How the System Works
 
 
-High-level architecture:
+Target architecture for the broader roadmap (CI/CD is future work):
 
 
 ```
@@ -335,19 +350,18 @@ Continue       Rollback
 | Containerization | Docker |
 | Orchestration | Kubernetes |
 | Local Cluster | k3d / k3s |
-| Deployment Engine | Argo Rollouts |
-| Traffic Routing | NGINX Ingress |
-| Monitoring | Prometheus |
-| Visualization | Grafana |
-| CI/CD | GitHub Actions |
-| Load Testing | k6 / Locust |
+| Recovery Engine | Python controller with Kubernetes API access |
+| Traffic Routing | NGINX Gateway Fabric / Gateway API HTTPRoute |
+| Monitoring | Prometheus recording and alerting rules |
+| Traffic Generation | Repository Python scripts |
+| Acceptance | pytest, Ruff, and live integrated verifier |
 
 ---
 
 # 🗺️ Development Roadmap
 
 
-The project will be developed in three versions.
+Version 1 is the local MVP. Versions 2 and 3 below are planned work; their feature lists do not indicate implemented capabilities.
 
 
 # 🟢 Version 1 — MVP
@@ -407,7 +421,7 @@ Implement:
 - Pods
 - Deployments
 - Services
-- Ingress
+- Gateway API routing
 
 
 ---
@@ -439,7 +453,6 @@ Collect:
 
 - Request count
 - Error count
-- Latency
 - Application version
 
 

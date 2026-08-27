@@ -25,8 +25,9 @@ Conversation evidence is described inside each incident because it is not a comm
 | 4: Monitoring | [Monitoring investigation](PHASE_4_MONITORING.md) | [Monitoring guide](../MONITORING.md) |
 | 5: Canary traffic | [Traffic control issues](PHASE_5_CANARY_TRAFFIC.md) | [Canary traffic guide](../CANARY_TRAFFIC.md) |
 | 6: Automated recovery | [Recovery issues](PHASE_6_AUTOMATED_RECOVERY.md) | [Recovery guide](../AUTOMATED_RECOVERY.md) |
+| 7: End-to-end verification | [Acceptance-test issues](PHASE_7_END_TO_END.md) | [End-to-end guide](../END_TO_END_VERIFICATION.md) |
 
-Phase 6 implementation and validation are recorded in its linked history. Phase 7 integrated end-to-end verification remains future work; add its incident file when that work starts.
+Phase 6 implementation and validation are recorded in its linked history. Phase 7 now has an acceptance runner and its own issue history; use its report and operating guide for measured completion status.
 
 ## Symptom index
 

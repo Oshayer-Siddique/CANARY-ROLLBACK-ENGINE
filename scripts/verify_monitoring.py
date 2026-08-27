@@ -193,7 +193,10 @@ def main():
         percentages = query(prometheus, "canary:error_percentage_60s")
         require(vector_value(percentages, "v1") == 0, "Healthy v1 error percentage is not zero")
         require(vector_value(percentages, "v2") == 0, "Healthy v2 error percentage is not zero")
-        print("PASS: healthy v1 and v2 traffic produced zero-percent 60-second error signals", flush=True)
+        print(
+            "PASS: healthy v1 and v2 traffic produced zero-percent 60-second error signals",
+            flush=True,
+        )
 
         if not args.exercise_canary:
             return
@@ -201,19 +204,29 @@ def main():
         print("Exercising the failure path: making v2 return HTTP 500...", flush=True)
         set_canary_failure_rate(100)
         wait_for_canary_target(prometheus)
-        print("Generating failing v2 traffic and waiting for Prometheus to evaluate it...", flush=True)
+        print(
+            "Generating failing v2 traffic and waiting for Prometheus to evaluate it...", flush=True
+        )
         generate("canary", 30)
+
         def error_signal():
             return vector_value(query(prometheus, "canary:error_percentage_60s"), "v2")
+
         wait_until(
             lambda: (error_signal() or 0) > 5,
             "Failing v2 did not exceed the 5-percent error threshold",
         )
         firing = 'ALERTS{alertname="CanaryErrorRateHigh",alertstate="firing"}'
         wait_until(lambda: bool(query(prometheus, firing)), "Canary error alert did not fire")
-        print("PASS: failing v2 exceeded the 5-percent threshold and produced the expected alert", flush=True)
+        print(
+            "PASS: failing v2 exceeded the 5-percent threshold and produced the expected alert",
+            flush=True,
+        )
 
-        print("Restoring v2, then waiting for the 60-second health window to age out the failures...", flush=True)
+        print(
+            "Restoring v2, then waiting for the 60-second health window to age out the failures...",
+            flush=True,
+        )
         set_canary_failure_rate(0)
         wait_for_canary_target(prometheus)
         generate("canary")
@@ -224,7 +237,10 @@ def main():
         )
         require(not query(prometheus, firing), "Canary alert did not clear after recovery")
         kubectl(APP_NAMESPACE, "rollout", "status", "deployment/application-v2", "--timeout=180s")
-        print("PASS: restored v2 recovered and the alert cleared after the evaluation window", flush=True)
+        print(
+            "PASS: restored v2 recovered and the alert cleared after the evaluation window",
+            flush=True,
+        )
     finally:
         if args.exercise_canary:
             try:

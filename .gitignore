@@ -12,3 +12,6 @@ dist/
 .env**
 
 .tools/
+
+# Per-run verification artifacts; retain selected evidence separately when publishing.
+reports/
