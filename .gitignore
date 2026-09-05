@@ -15,3 +15,6 @@ dist/
 
 # Per-run verification artifacts; retain selected evidence separately when publishing.
 reports/
+
+frontend/node_modules/
+frontend/dist/

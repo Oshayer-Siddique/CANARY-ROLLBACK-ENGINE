@@ -18,7 +18,7 @@ dependencies = [
 dev = ["pytest>=8,<10", "httpx>=0.27,<1", "ruff>=0.9,<1"]
 
 [tool.setuptools.packages.find]
-include = ["app*"]
+include = ["app*", "management*"]
 
 [tool.setuptools.package-data]
 app = ["templates/*.html"]

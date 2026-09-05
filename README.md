@@ -18,6 +18,7 @@ Follow these guides in order:
 4. [Canary traffic controls](docs/CANARY_TRAFFIC.md).
 5. [Recovery controller](docs/AUTOMATED_RECOVERY.md).
 6. [Integrated acceptance](docs/END_TO_END_VERIFICATION.md): run `python3 -u scripts/verify_mvp.py` after the earlier setup is ready.
+7. [Operator UI](docs/OPERATOR_UI.md): run the connected, read-only Dashboard.
 
 The acceptance suite injects local faults and restores healthy v2 with 100/0 routing. It saves per-run reports under `reports/`. Read the guide's preconditions before running it. See [architecture](ARCHITECTURE.md) for the implemented components and future design.
 
