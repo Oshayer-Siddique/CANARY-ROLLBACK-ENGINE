@@ -1,0 +1,11 @@
+# Only application packaging inputs belong in the build context.
+**
+!Dockerfile
+!.dockerignore
+!pyproject.toml
+!app/
+!app/**
+**/__pycache__/
+**/*.py[cod]
+**/.env
+**/.env.*
