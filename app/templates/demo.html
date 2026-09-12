@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canary traffic explorer</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #101827; color: #e5edf7; }
+    body { max-width: 960px; margin: auto; padding: 40px 20px; }
+    h1 { letter-spacing: -.04em; font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 12px; }
+    p { color: #acbdd3; line-height: 1.6; }
+    .eyebrow { color: #5eead4; text-transform: uppercase; letter-spacing: .15em; font-size: .8rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 28px 0; }
+    button { border: 1px solid #45617d; border-radius: 8px; padding: 12px 18px; background: #1b2a40; color: inherit; cursor: pointer; font: inherit; }
+    button.primary { background: #5eead4; color: #082b2a; border-color: #5eead4; }
+    button:disabled { opacity: .45; cursor: default; }
+    button:focus-visible { outline: 3px solid #e5edf7; outline-offset: 3px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .card { border: 1px solid #304059; border-radius: 12px; padding: 20px; background: #152136; }
+    .card span { display: block; color: #acbdd3; margin-bottom: 10px; }
+    .card strong { font-size: 1.8rem; }
+    .scroll { overflow-x: auto; border: 1px solid #304059; border-radius: 12px; }
+    table { border-collapse: collapse; width: 100%; text-align: left; }
+    th, td { padding: 12px 16px; border-bottom: 1px solid #304059; white-space: nowrap; }
+    th { color: #acbdd3; font-weight: 500; }
+    .ok { color: #5eead4; } .error { color: #fda4af; }
+    #versions { white-space: pre-wrap; font-family: ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <div class="eyebrow">Canary delivery · Application demo</div>
+  <h1>See which release answers.</h1>
+  <p>Send requests and watch the responding version, instance, and outcome.
+    With traffic routing connected, this page can show both stable and canary releases.</p>
+  <div class="controls">
+    <button id="once">Send one request</button>
+    <button id="start" class="primary">Start requests</button>
+    <button id="stop" disabled>Stop</button>
+    <button id="reset">Reset observations</button>
+    <span id="state" role="status" aria-live="polite">Idle</span>
+  </div>
+  <div class="cards">
+    <div class="card"><span>HTTP responses</span><strong id="total">0</strong></div>
+    <div class="card"><span>HTTP 5xx</span><strong id="errors">0</strong></div>
+    <div class="card"><span>Observed error rate</span><strong id="rate">—</strong></div>
+    <div class="card"><span>Connection failures</span><strong id="network">0</strong></div>
+  </div>
+  <h2>Responses by version</h2>
+  <p id="versions">No responses yet.</p>
+  <h2>Recent requests</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Time</th><th>Version</th><th>Instance</th><th>Result</th><th>Duration</th></tr></thead>
+      <tbody id="results"></tbody>
+    </table>
+  </div>
+  <p>Observations cover this browser session only. They are not the deployment decision or the
+    Prometheus evaluation window. Automatic requests run sequentially, about twice per second;
+    use a load-testing tool for sustained rollout analysis. The latest 50 requests are shown.</p>
+  <script>
+    const el = id => document.getElementById(id);
+    let running = false, pending = false, timer;
+    let total = 0, errors = 0, network = 0;
+    const versions = new Map();
+    function controls() {
+      el('once').disabled = running || pending;
+      el('start').disabled = running || pending;
+      el('stop').disabled = !running;
+      el('reset').disabled = running || pending;
+      el('state').textContent = running ? 'Sending requests' : pending ? 'Finishing request' : 'Idle';
+    }
+    function render() {
+      el('total').textContent = total;
+      el('errors').textContent = errors;
+      el('network').textContent = network;
+      el('rate').textContent = total ? `${(errors / total * 100).toFixed(1)}%` : '—';
+      el('versions').textContent = versions.size ? [...versions].map(([v, n]) =>
+        `${v}: ${n} responses (${(n / total * 100).toFixed(1)}%)`).join('\n') : 'No responses yet.';
+    }
+    async function request() {
+      if (pending) return;
+      pending = true;
+      controls();
+      const started = performance.now();
+      let version = 'Unknown', instance = '—', result, failed = false;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      try {
+        const response = await fetch('/', {cache: 'no-store', signal: controller.signal});
+        total++;
+        failed = response.status >= 500;
+        if (failed) errors++;
+        result = `HTTP ${response.status}`;
+        let data;
+        try { data = await response.json(); } catch { data = {}; }
+        version = typeof data.version === 'string' ? data.version : 'Unknown';
+        instance = typeof data.instance === 'string' ? data.instance : '—';
+        versions.set(version, (versions.get(version) || 0) + 1);
+      } catch {
+        network++;
+        failed = true;
+        result = 'Connection failed / timed out';
+      } finally {
+        clearTimeout(timeout);
+        const row = document.createElement('tr');
+        [new Date().toLocaleTimeString(), version, instance, result,
+          `${Math.round(performance.now() - started)} ms`].forEach(value => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        row.children[3].className = failed ? 'error' : 'ok';
+        el('results').prepend(row);
+        while (el('results').children.length > 50) el('results').lastChild.remove();
+        pending = false;
+        render();
+        controls();
+        if (running) timer = setTimeout(request, 500);
+      }
+    }
+    el('once').onclick = request;
+    el('start').onclick = () => { running = true; request(); };
+    el('stop').onclick = () => { running = false; clearTimeout(timer); controls(); };
+    el('reset').onclick = () => {
+      total = errors = network = 0;
+      versions.clear();
+      el('results').replaceChildren();
+      render();
+    };
+  </script>
+</body>
+</html>
