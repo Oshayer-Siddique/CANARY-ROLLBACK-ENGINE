@@ -1,10 +1,10 @@
-# 🚀 Automated Canary Delivery & Self-Healing Rollback Engine
+#  Automated Canary Delivery & Self-Healing Rollback Engine
 
 > An autonomous Kubernetes progressive delivery platform that safely releases software changes, analyzes real-time production health, and automatically rolls back unhealthy deployments.
 
 ---
 
-# 📌 Project Overview
+#  Project Overview
 
 Modern applications are deployed frequently, but every deployment introduces risk.
 
@@ -273,7 +273,7 @@ They need:
 
 ---
 
-# 🏗️ How The System Works
+#  How the System Works
 
 
 High-level architecture:
