@@ -1,4 +1,3 @@
-# CANARY-ROLLBACK-ENGINE
 # Automated Canary Delivery & Self-Healing Rollback Engine
 
 ## Architecture Overview
@@ -6,89 +5,156 @@
 The following diagram illustrates the complete system architecture:
 
 ```mermaid
-flowchart LR
+flowchart TB
 
-subgraph DEV["👨‍💻 Development Workflow"]
+%% ==============================
+%% TOP INPUT LAYER
+%% ==============================
 
-A["Developer"]
+subgraph INPUTS["Software Delivery"]
+
+A["👨‍💻 Developer<br/>Code Changes"]
+
 B["GitHub Repository"]
-C["Pull Request"]
+
+C["⚙️ GitHub Actions<br/>CI/CD"]
+
+D["🐳 Docker Registry"]
 
 end
 
-subgraph CICD["⚙️ CI/CD Pipeline"]
 
-D["GitHub Actions"]
-E["Build & Test"]
-F["Docker Image Build"]
-G["Container Registry"]
+
+%% ==============================
+%% CORE PLATFORM
+%% ==============================
+
+subgraph CORE["🚀 Progressive Delivery Platform"]
+
+
+E["Argo Rollouts Controller"]
+
+
+F["Canary Strategy<br/><br/>
+10% → 25% → 50% → 100%"]
+
+
+G["Traffic Decision Engine<br/><br/>
+Continue / Pause / Rollback"]
+
+
+E ==> F
+F ==> G
+
 
 end
 
-subgraph DELIVERY["🚀 Progressive Delivery"]
 
-H["Argo Rollouts Controller"]
 
-I["Canary Strategy"]
-
-J["Traffic Progression<br/>10% → 25% → 50% → 100%"]
-
-K["Automated Quality Gate"]
-
-end
+%% ==============================
+%% RUNTIME
+%% ==============================
 
 
 subgraph KUBE["☸️ Kubernetes Cluster"]
 
-L["NGINX Ingress Controller"]
 
-M["Stable Version v1"]
-
-N["Canary Version v2"]
-
-end
+H["NGINX Ingress<br/><br/>
+Traffic Router"]
 
 
-subgraph OBS["📊 Observability"]
+subgraph SERVICES["Application Versions"]
 
-O["Application Metrics"]
+I["🟢 Stable Release<br/>v1.0<br/><br/>90% Traffic"]
 
-P["Prometheus"]
-
-Q["PromQL Analysis"]
-
-R["Grafana"]
+J["🟡 Canary Release<br/>v2.0<br/><br/>10% Traffic"]
 
 end
 
 
-A --> B
-B --> C
-C --> D
-
-D --> E
-E --> F
-F --> G
-
-G --> H
-
-H --> I
-I --> J
-J --> L
-
-L -->|90% Traffic| M
-L -->|10% Traffic| N
+H ==> I
+H ==> J
 
 
-M --> O
-N --> O
+end
 
-O --> P
-P --> Q
 
-Q --> K
 
-K -->|Healthy| H
-K -->|Failed| H
+%% ==============================
+%% OBSERVABILITY
+%% ==============================
 
-P --> R
+
+subgraph MONITOR["📊 Observability"]
+
+K["Application Metrics<br/>/metrics"]
+
+L["Prometheus"]
+
+M["PromQL Analysis"]
+
+N["Grafana Dashboard"]
+
+
+K ==> L
+L ==> M
+L ==> N
+
+
+end
+
+
+
+%% ==============================
+%% TESTING
+%% ==============================
+
+
+subgraph TESTING["🔥 Testing"]
+
+O["Load Generator<br/>k6 / Locust"]
+
+P["Failure Injection<br/>Errors / Latency"]
+
+end
+
+
+
+%% ==============================
+%% MAIN FLOW
+%% ==============================
+
+
+A ==> B
+
+B ==> C
+
+C ==> D
+
+D ==> E
+
+
+G ==> H
+
+
+I ==> K
+J ==> K
+
+
+M ==> G
+
+
+O ==> H
+
+P ==> J
+
+
+
+%% ROLLBACK LOOP
+
+
+G ==>|Failure Detected| E
+
+E ==>|Rollback Canary| J
+
+
