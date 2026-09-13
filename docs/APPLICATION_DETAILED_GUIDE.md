@@ -1,5 +1,7 @@
 # Application: complete implementation and operating guide
 
+Related: [Phase 1 issue history and safeguards](troubleshooting/PHASE_1_APPLICATION.md).
+
 This document explains the application currently implemented in this repository:
 what it does, why it exists, how its code works, how to run it, and what remains
 for the rest of the MVP. It describes Phase 1, not a completed rollback platform.

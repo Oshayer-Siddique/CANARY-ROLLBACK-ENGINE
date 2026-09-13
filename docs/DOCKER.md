@@ -1,5 +1,7 @@
 # Docker application guide
 
+Related: [Phase 2 issue history and safeguards](troubleshooting/PHASE_2_DOCKER.md).
+
 This phase packages the existing application into two local release images.
 Traffic splitting and automatic rollback require the later Kubernetes/controller
 phases. For application behavior, see [the application guide](APPLICATION.md).

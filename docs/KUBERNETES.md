@@ -1,5 +1,7 @@
 # Kubernetes deployment guide
 
+Related: [Phase 3 infrastructure issue history](troubleshooting/PHASE_3_KUBERNETES.md).
+
 This document describes the Kubernetes part of the Canary Rollback Engine MVP: the local cluster, workload topology, traffic routing, verification, and day-to-day commands.
 
 ## 1. What Phase 3 provides
@@ -288,10 +290,13 @@ The Docker images and source files remain. The next `create_k3d_cluster.sh` foll
 
 Phase 3 is complete when the cluster is Ready, both Deployments are rolled out, Gateway/HTTPRoute conditions are healthy, and `scripts/verify_kubernetes.py` passes. The current implementation meets those checks.
 
-The next MVP work is:
+Subsequent MVP work:
 
-1. Add Prometheus scraping and a five-percent error-rate alert over 60 seconds.
-2. Change HTTPRoute weights for controlled stable/canary traffic.
-3. Add the rollout controller and automatic rollback when the canary breaches the threshold.
+1. Phase 4 monitoring is complete: see [MONITORING.md](MONITORING.md).
+2. Phase 5 weighted routing is complete: see [CANARY_TRAFFIC.md](CANARY_TRAFFIC.md).
+3. Phase 6 will add automatic rollback when the canary breaches the health threshold.
+4. Phase 7 will verify the integrated release and automatic recovery workflow.
+
+The baseline HTTPRoute now includes stable at weight 100 and canary at weight 0. Reapplying it resets active traffic splitting. Run `python3 scripts/set_canary_traffic.py --canary-percent 0` before this guide's stable-only verifier; an active 90/10 split deliberately violates that verifier's v1-only expectation.
 
 Those features should build on the stable/canary labels, isolated Services, health/readiness probes, and Gateway route established here.

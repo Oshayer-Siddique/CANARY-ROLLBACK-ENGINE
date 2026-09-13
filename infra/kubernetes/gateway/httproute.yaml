@@ -12,3 +12,6 @@ spec:
         - name: application-stable
           port: 80
           weight: 100
+        - name: application-canary
+          port: 80
+          weight: 0

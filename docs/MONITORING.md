@@ -1,5 +1,11 @@
 # Prometheus monitoring guide
 
+Related: [Phase 4 errors, investigation, corrections, and remaining limitations](troubleshooting/PHASE_4_MONITORING.md).
+
+The [Phase 6 recovery controller](AUTOMATED_RECOVERY.md) now consumes these health signals. Keep isolated Phase 4 failure tests at 100/0; active unhealthy canary traffic can now trigger automatic restoration.
+
+Phase 5 is now implemented: see [CANARY_TRAFFIC.md](CANARY_TRAFFIC.md) for shared Gateway traffic and its verification. This Phase 4 guide assumes the 100/0 baseline; restore it with `python3 scripts/set_canary_traffic.py --canary-percent 0` before the failure exercise. Do not run failure injection concurrently with Phase 5 healthy-traffic verification.
+
 This document describes Phase 4 of the Canary Rollback Engine MVP. In this phase we turn the Kubernetes application from something that merely runs into something we can measure: Prometheus collects request and error metrics from both releases, turns those raw counters into a 60-second health signal, and raises an alert when the canary is unhealthy.
 
 Phase 4 is the **observation layer**, not the decision or recovery layer. The Gateway still sends external traffic only to stable v1. We deliberately send direct, controlled requests to the isolated canary Service so we can prove that monitoring identifies a healthy and an unhealthy v2 without exposing normal users to it. Phase 5 will introduce controlled Gateway traffic splitting; Phase 6 will consume the health signal and remove a failed canary from traffic automatically.
@@ -299,4 +305,4 @@ Phase 4 is complete when:
 - A failing v2 can be restored and its alert clears after the rolling window passes.
 - Deployment, access, queries, verification, troubleshooting, and cleanup are documented.
 
-With this complete, Phase 5 can safely introduce 90/10 Gateway traffic splitting. Phase 6 can use `canary:error_percentage_60s` and `CanaryErrorRateHigh` to make the automatic rollback decision.
+Phase 5 now provides verified 90/10 Gateway routing and manual restoration; see [CANARY_TRAFFIC.md](CANARY_TRAFFIC.md). Phase 6 will use these monitoring signals to decide automatic recovery. Phase 7 will verify the complete integrated workflow.
