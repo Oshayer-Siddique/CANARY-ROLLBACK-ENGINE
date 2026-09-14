@@ -1,12 +1,14 @@
 # Phase 6: Automated recovery
 
+For the integrated acceptance runner and live fault scenarios, see [Phase 7 verification](END_TO_END_VERIFICATION.md).
+
 Status: implemented and live-validated on September 13, 2026. The controller remains deployed; the final tested state is healthy v2 with stable-only Gateway routing.
 
 ## Purpose
 
 Phase 6 connects the Phase 4 health measurements to the Phase 5 traffic route. One Python controller runs inside Kubernetes, observes an active canary, and restores 100-percent stable traffic when v2 exceeds the MVP error policy. The canary Deployment is retained for investigation.
 
-Phase 7 remains the integrated end-to-end verification phase. Phase 6's focused tests do not replace that final acceptance work.
+Phase 7 extends these focused checks with repeated integrated acceptance and live fault scenarios; see its linked guide for the measured results.
 
 ## Architecture
 
@@ -181,4 +183,4 @@ The full live verifier exited zero. Healthy v2 stayed active at 90/10 after the 
 
 Cleanup successfully restored FAILURE_RATE=0 and 100/0 routing. All 49 offline tests passed, targeted lint passed, and the deployment script passed shell syntax checking. Two existing dependency deprecation warnings remain. Live RBAC checks returned yes for patching the named application route and no for patching Deployments.
 
-Missing-data, API-conflict, restart, stable-unavailability, and failed-verification paths were covered by offline tests; they were not all fault-injected into the cluster in this run. Phase 7 remains the broader integrated acceptance exercise.
+Missing-data, API-conflict, restart, stable-unavailability, and failed-verification paths were covered by offline tests; they were not all fault-injected into the cluster in this run. The broader Phase 7 results are recorded in the end-to-end verification guide.
